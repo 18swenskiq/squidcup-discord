@@ -1,0 +1,11 @@
+# Don't need the build folder
+/build
+
+# Well this one would just be a waste of time
+/node_modules
+
+# You're not getting my token
+/cfg/config.json
+
+# My personal notes
+/READMORE.txt
