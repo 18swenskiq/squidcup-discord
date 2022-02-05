@@ -14,8 +14,8 @@
     "clean": "rimraf ./build && mkdir build",
     "compile": "tsc.cmd",
     "build": "npm run compile",
-	  "copypackagejson": "copyfiles ./package.json ./build/",
-	  "copycfg": "copyfiles ./cfg/config.json ./build/",
+    "copypackagejson": "copyfiles ./package.json ./build/",
+    "copycfg": "copyfiles ./cfg/config.json ./build",
     "update_commands": "node ./build/deploy-commands.js",
     "start": "npm run clean && npm run compile && npm run build && npm run copypackagejson && npm run copycfg && npm run update_commands && node ./build/bot.js"
   },
