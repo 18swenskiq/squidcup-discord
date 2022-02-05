@@ -1,9 +1,9 @@
-import { ProgramDataLists } from "../services/programDataLists";
+import { QueueService } from "../services/queueService";
 import { ChannelSnowflake } from "../types/channelSnowflake";
 import { UserSnowflake } from "../types/userSnowflake";
 import { GuidValue } from "../types/guid";
 
-enum QueueState {
+export enum QueueState {
     Initializing,
     SearchingForPlayers,
     MapModeSelection,
@@ -21,29 +21,83 @@ export class Queue {
     private Members: UserSnowflake[];
     private State: QueueState;
     private Channel: ChannelSnowflake;
+    private QueueInteraction: any;
+    private PlayersNeeded: number;
 
-    constructor(owner: UserSnowflake, channel: ChannelSnowflake, id: GuidValue, queueType: string)
+    constructor(interaction: any, id: GuidValue, queueType: string)
     {
         this.State = QueueState.Initializing;
         this.Id = id;
-        this.Owner = owner;
-        this.Channel = channel;
+        this.Owner = <UserSnowflake>interaction.user.id;
+        this.Channel = <ChannelSnowflake>interaction.channelId;
         this.QueueType = queueType;
+
+        switch(this.QueueType)
+        {
+            case "2v2":
+                this.PlayersNeeded = 3;
+                break;
+            case "3v3":
+                this.PlayersNeeded = 5;
+                break;
+            default:
+                this.PlayersNeeded = Number.MAX_SAFE_INTEGER;
+                break;
+        }
+
         this.StartTime = new Date();
-        this.Members = [owner];
+        this.Members = [this.Owner];
         this.State = QueueState.SearchingForPlayers;
-        ProgramDataLists.createNewQueue(this);
+        QueueService.createNewQueue(this);
+    }
+
+    public GetChannel(): ChannelSnowflake {
+        return this.Channel;
     }
 
     public GetOwner(): UserSnowflake {
         return this.Owner;
     }
 
-    public UserInQueue(id: UserSnowflake): boolean {
+    public isUserInQueue(id: UserSnowflake): boolean {
         if (this.Members.includes(id))
         {
             return true;
         }
         return false;
+    }
+
+    public AddMember(user: UserSnowflake): void {
+        this.Members.push(user);
+        this.PlayersNeeded -= 1;
+
+        if(this.PlayersNeeded == 0)
+        {
+            this.State = QueueState.MapModeSelection;
+        }
+    }
+
+    public GetState(): QueueState {
+        return this.State;
+    }
+
+    public GetInteraction(): any {
+        return this.QueueInteraction;
+    }
+
+    public GetQueueType(): string {
+        return this.QueueType;
+    }
+
+    public GetId(): GuidValue {
+        return this.Id;
+    }
+
+    public GetPlayersNeeded(): number {
+        return this.PlayersNeeded;
+    }
+
+    public GetMemberIds(): UserSnowflake[] {
+        return this.Members;
     }
 }

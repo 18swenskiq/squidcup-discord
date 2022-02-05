@@ -3,10 +3,9 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 import path from 'path';
 
 process.chdir(__dirname);
-import { MessageActionRow, MessageButton } from "discord.js";
 import { Queue } from "../playqueue/queue";
 import { Guid } from "../types/guid";
-import { ProgramDataLists } from "../services/programDataLists";
+import { QueueService } from "../services/queueService";
 
 const configPath = path.resolve(__dirname, "../cfg/config.json");
 const { role2v2, role3v3 } = require(configPath);
@@ -22,11 +21,10 @@ module.exports = {
                 .addChoice('2v2', '2v2')
                 .addChoice('3v3', '3v3')),
 	async execute(interaction) {
-        // TODO: Put a timer on this, as the interaction token will only last 15 minutes
         const gameSize = interaction.options.getString('gamesize');
 
         // If we can't create a queue, let's yeet out of here
-        if (!ProgramDataLists.canCreateQueue(interaction.user.id))
+        if (!QueueService.canCreateQueue(interaction.user.id))
         {
             await interaction.reply(`You are not allowed to create a queue at this time`);
             return;
@@ -50,17 +48,10 @@ module.exports = {
                 break;    
         }
 
-        // Create a new queue with a guid so we can find it later
+        // Create a new queue with a guid so we can find it later (and pass it the interaction)
         const queueId = Guid.newGuid();
-        new Queue(interaction.user.id, interaction.channelId, queueId, gameSize);
+        new Queue(interaction, queueId, gameSize);
 
-        await interaction.reply(`${mentionString}, ${interaction.member.displayName} is looking for ${playersNeeded} more players!`);
-        
-        // THE LOOP OF DOOM
-        while (true)
-        {
-
-        }
-        
+        await interaction.reply(`${mentionString}, ${interaction.member.displayName} is looking for ${playersNeeded} more players for a ${gameSize} match! Type \`/queue\` to join!`);        
 	},
 };
