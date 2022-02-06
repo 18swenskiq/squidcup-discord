@@ -1,3 +1,4 @@
+process.chdir(__dirname);
 import { QueueService } from "../services/queueService";
 import { ChannelSnowflake } from "../types/channelSnowflake";
 import { UserSnowflake } from "../types/userSnowflake";
@@ -34,6 +35,9 @@ export class Queue {
 
         switch(this.QueueType)
         {
+            case "1v1":
+                this.PlayersNeeded = 1;
+                break;
             case "2v2":
                 this.PlayersNeeded = 3;
                 break;
@@ -48,6 +52,7 @@ export class Queue {
         this.StartTime = new Date();
         this.Members = [this.Owner];
         this.State = QueueState.SearchingForPlayers;
+        this.QueueInteraction = interaction;
         QueueService.createNewQueue(this);
     }
 
@@ -99,5 +104,10 @@ export class Queue {
 
     public GetMemberIds(): UserSnowflake[] {
         return this.Members;
+    }
+
+    public createMapModeSelectionChoiceDropdown = async(): Promise<void> => 
+    {
+        
     }
 }
