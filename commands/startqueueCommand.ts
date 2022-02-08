@@ -57,22 +57,20 @@ module.exports = {
 
         // Create a new queue with a guid so we can find it later (and pass it the interaction)
         const queueId = Guid.newGuid();
-        new Queue(interaction, queueId, gameSize);
-        
-        await interaction.editReply(`${gameSize} Queue Started!`);
+        new Queue(interaction, queueId, gameSize);       
 
         const buttons = new MessageActionRow()
             .addComponents(
                 new MessageButton()
-                    .setCustomId('joinqueue')
+                    .setCustomId(`joinqueue_${queueId}`)
                     .setLabel('Join Queue')
                     .setStyle('SUCCESS'),
                 new MessageButton()
-                    .setCustomId('leavequeue')
+                    .setCustomId(`leavequeue_${queueId}`)
                     .setLabel('Leave Queue')
                     .setStyle("DANGER"),
                 new MessageButton()
-                    .setCustomId('stopqueue')
+                    .setCustomId(`stopqueue_${queueId}`)
                     .setLabel("Stop Queue")
                     .setStyle("DANGER"),
             );
@@ -86,6 +84,7 @@ module.exports = {
             )
             .setTimestamp();
 
-        await interaction.followUp({content: `${mentionString}, ${interaction.member.displayName} is looking for ${playersNeeded} more ${parseInt(playersNeeded) > 1 ? 'players' : 'player'} for a ${gameSize} match! Type \`/queue\` to join!`, components: [buttons], embeds: [initialEmbed]});        
+        await interaction.editReply({content: `${gameSize} Queue Started!`, components: [buttons], embeds: [initialEmbed]});
+        await interaction.followUp(`${mentionString}, ${interaction.member.displayName} is looking for ${playersNeeded} more ${parseInt(playersNeeded) > 1 ? 'players' : 'player'} for a ${gameSize} match! Press the \`Join Queue\` button above to join!`);        
 	},
 };

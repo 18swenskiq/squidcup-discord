@@ -3,6 +3,8 @@ import { QueueService } from "../services/queueService";
 import { ChannelSnowflake } from "../types/channelSnowflake";
 import { UserSnowflake } from "../types/userSnowflake";
 import { GuidValue } from "../types/guid";
+import { MessageEmbed } from "discord.js";
+import { StringUtils } from "../utilities/stringUtils";
 
 export enum QueueState {
     Initializing,
@@ -72,14 +74,32 @@ export class Queue {
         return false;
     }
 
-    public AddMember(user: UserSnowflake): void {
+    public async AddMember(user: UserSnowflake): Promise<void> {
         this.Members.push(user);
         this.PlayersNeeded -= 1;
+
+        let guildMembers = await this.QueueInteraction.guild.members.fetch({ user: this.Members, withPresences: false });
+        let memberNicknames = guildMembers.map(i => i.displayName);
+
+        const editedEmbed = new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle(`${this.QueueType} Queue`)
+            .setFields(
+                {name: 'Players Needed', value: `${this.PlayersNeeded}`, inline: true},
+                {name: 'Players in Queue', value: StringUtils.MemberNameListToString(memberNicknames), inline: true},
+            )
+            .setTimestamp();
 
         if(this.PlayersNeeded == 0)
         {
             this.State = QueueState.MapModeSelection;
+            await this.QueueInteraction.editReply({components: [], embeds: [editedEmbed]});
         }
+        else
+        {
+            await this.QueueInteraction.editReply({embeds: [editedEmbed]});
+        }
+
     }
 
     public GetState(): QueueState {

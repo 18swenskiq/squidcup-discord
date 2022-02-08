@@ -1,20 +1,37 @@
-const { MessageActionRow, MessageSelectMenu } = require('discord.js');
+import { Queue, QueueState } from "../playqueue/queue";
+import { QueueService } from "../services/queueService";
+import { GuidValue } from "../types/guid";
+
+const { MessageActionRow, MessageEmbed, MessageSelectMenu } = require('discord.js');
 
 export class MapSelection {
 
-    private Interaction: any;
+    private Queue: Queue;
 
-    constructor(interaction: any)
+    constructor(queueId: GuidValue)
     {
-        this.Interaction = interaction;
+		this.Queue = QueueService.getQueueFromId(queueId);
     }
 
     public createMapSelectionChoiceDropdown = async(): Promise<void> => 
     {
-        const row = new MessageActionRow()
+		const initialEmbed = new MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle(`${this.Queue.GetQueueType()} Queue`)
+            .addFields(
+                {name: 'Team 1', value: "player names here", inline: true},
+                {name: 'Team 2', value: "player names here", inline: true},
+            )
+            .setTimestamp();
+
+		await this.Queue.GetInteraction().followUp({embeds: [initialEmbed]});
+
+		await this.Queue.GetInteraction().followUp("<Queue Leader Name> is currently choosing the map selection mode. Please wait...");
+
+        const mapSelectionRow = new MessageActionRow()
 			.addComponents(
 				new MessageSelectMenu()
-					.setCustomId('select')
+					.setCustomId(`selectmapselectionmode_${this.Queue.GetId()}`)
 					.setPlaceholder('Nothing selected')
 					.addOptions([
 						{
@@ -28,8 +45,7 @@ export class MapSelection {
 							value: 'all_pick',
 						},
 					]),
-			);
-        
-        await this.Interaction.followUp({ content: '<Insert Queue Leader Name here>, please pick a map selection mode!', components: [row]});
+			);		
+        await this.Queue.GetInteraction().followUp({ content: '<Insert Queue Leader Name here>, please pick a map selection mode!', components: [mapSelectionRow], ephemeral: true});
     }
 }

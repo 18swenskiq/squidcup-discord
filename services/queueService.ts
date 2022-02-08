@@ -57,7 +57,12 @@ export abstract class QueueService {
     }
 
     public static queueIsJoinable(queueId: GuidValue): boolean {
+        // TODO: Return an object containing {boolean, string}, with the string being the reason its not joinable
         const queue = this.activeQueues.find(i => i.GetId() == queueId);
+        if (!queue)
+        {
+            return false;
+        }
         if (queue.GetState() != QueueState.SearchingForPlayers)
         {
             return false;
@@ -65,9 +70,9 @@ export abstract class QueueService {
         return true;
     }
 
-    public static joinQueue(queueId: GuidValue, user: UserSnowflake): void {
+    public static async joinQueue(queueId: GuidValue, user: UserSnowflake): Promise<void> {
         const queue = this.activeQueues.find(i => i.GetId() == queueId);
-        queue.AddMember(user);
+        await queue.AddMember(user);
     }
 
     public static getQueueInteraction(queueId: GuidValue): any {
@@ -88,6 +93,10 @@ export abstract class QueueService {
     public static getQueueMemberIds(queueId: GuidValue): UserSnowflake[] {
         const queue = this.activeQueues.find(i => i.GetId() == queueId);
         return queue.GetMemberIds();
+    }
+
+    public static getQueueFromId(queueId: GuidValue): Queue {
+        return this.activeQueues.find(i => i.GetId() == queueId);
     }
 
     public static getQueueIdFromChannelId(channel: ChannelSnowflake): GuidValue {
