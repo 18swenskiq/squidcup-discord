@@ -1,8 +1,9 @@
 import { SelectMapSelectionModeChoice } from "../selectmenucommands/selectMapSelectionModeChoice";
+import { StringUtils } from "../utilities/stringUtils";
 
 export abstract class SelectMenuChoiceHandlerService {
     public static HandleInteraction = async(interaction: any): Promise<void> => {
-        switch(this.GetSelectChoiceArchetype(interaction.customId))
+        switch(StringUtils.GetCustomIdChoiceArchetype(interaction.customId))
         {
             case 'selectmapselectionmode':
                 await interaction.deferReply({ ephemeral: true});
@@ -12,9 +13,5 @@ export abstract class SelectMenuChoiceHandlerService {
                 await interaction.reply("This dropdown is not yet implemented");
                 break;
         }
-    }
-
-    private static GetSelectChoiceArchetype(customId: string): string {
-        return customId.split('_')[0];
     }
 }

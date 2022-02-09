@@ -1,17 +1,17 @@
-import { MapSelection } from "../playqueue/mapSelection";
 import { QueueService } from "../services/queueService";
-import { GuidValue } from "../types/guid";
 import { StringUtils } from "../utilities/stringUtils";
+import { MessageActionRow, MessageEmbed, MessageSelectMenu } from 'discord.js';
+import { QueueMode } from "../types/queueMode";
+import { MapSelectionMode } from "../types/mapSelectionMode";
 
 export abstract class JoinQueueButtonPress {
     public static OnPress = async(interaction: any): Promise<void> => 
     {
-        let queueId = this.GetQueueId(interaction.customId);
+        let queueId = StringUtils.GetQueueIdFromCustomId(interaction.customId);
 
-        // With the button refactor, this should essentially never happen... hopefully
-        if (!QueueService.isQueueInChannel(interaction.channelId))
+        if (!QueueService.queueIsJoinable(queueId))
         {
-            await interaction.editReply("There is currently no queue in this channel to join!");
+            await interaction.editReply("The associated queue for that button does not exist!");
             return;
         }      
 
@@ -34,25 +34,46 @@ export abstract class JoinQueueButtonPress {
 
         if(playersNeeded != 0)
         {
-
-            const queueMemberIds = QueueService.getQueueMemberIds(queueId);
-            let members = await interaction.guild.members.fetch({ user: queueMemberIds, withPresences: false });
-            let queueMemberNicknames = members.map(i => i.displayName);
-
             await interaction.editReply(`Only **${playersNeeded}** more players are needed in the ${gamemode} queue! Hold tight!`);
             return;
         }
         else
         {
-            let startQueueInteraction = QueueService.getQueueInteraction(queueId);
             await interaction.editReply("Queue is now full! Starting...");
 
-            let mapSelection = new MapSelection(queueId);
-            await mapSelection.createMapSelectionChoiceDropdown();
-        }
-    }
+            // Create embed showing the teams and ELOs
+            const initialEmbed = new MessageEmbed()
+                .setColor('#0099ff')
+                .setTitle(`${QueueService.getQueueGameMode(queueId)} Queue`)
+                .addFields(
+                    {name: 'Team 1', value: "player names here", inline: true},
+                    {name: 'Team 2', value: "player names here", inline: true},
+                )
+                .setTimestamp();
 
-    private static GetQueueId(customId: string): GuidValue {
-        return customId.split("_")[1];
+		    await QueueService.getQueueInteraction(queueId).followUp({embeds: [initialEmbed]});
+		    await QueueService.getQueueInteraction(queueId).followUp("<Queue Leader Name> is currently choosing the map selection mode. Please wait...");
+
+            // Create the dropdown option for the queue leader to choose the map selection mode
+            const mapSelectionRow = new MessageActionRow()
+                .addComponents(
+                    new MessageSelectMenu()
+                        .setCustomId(`selectmapselectionmode_${queueId}`)
+                        .setPlaceholder('Nothing selected')
+                        .addOptions([
+                            {
+                                label: 'Season Pool Veto',
+                                description: 'Veto from the pool of the current season for extra squidcoins!',
+                                value: MapSelectionMode.SeasonPool,
+                            },
+                            {
+                                label: 'All Pick/Random Selection',
+                                description: 'Everyone picks a map, and a random one is selected',
+                                value: MapSelectionMode.AllPickRandomVeto,
+                            },
+                        ]),
+                );		
+            await QueueService.getQueueInteraction(queueId).followUp({ content: '<Insert Queue Leader Name here>, please pick a map selection mode!', components: [mapSelectionRow], ephemeral: true});
+        }
     }
 }

@@ -1,7 +1,8 @@
 process.chdir(__dirname);
 import { Queue, QueueState } from "../playqueue/queue";
 import { ChannelSnowflake } from "../types/channelSnowflake";
-import { GuidValue } from "../types/guid";
+import { Guid, GuidValue } from "../types/guid";
+import { MapSelectionMode } from "../types/mapSelectionMode";
 import { UserSnowflake } from "../types/userSnowflake";
 
 export abstract class QueueService {
@@ -56,14 +57,27 @@ export abstract class QueueService {
         return false;
     }
 
-    public static queueIsJoinable(queueId: GuidValue): boolean {
-        // TODO: Return an object containing {boolean, string}, with the string being the reason its not joinable
+    public static doesQueueExist(queueId: GuidValue): boolean {
         const queue = this.activeQueues.find(i => i.GetId() == queueId);
         if (!queue)
         {
             return false;
         }
+        return true;
+    }
+
+    public static queueIsJoinable(queueId: GuidValue): boolean {
+        const queue = this.activeQueues.find(i => i.GetId() == queueId);
         if (queue.GetState() != QueueState.SearchingForPlayers)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public static queueCanPickMapSelection(queueId: GuidValue): boolean {
+        const queue = this.activeQueues.find(i => i.GetId() == queueId)
+        if (queue.GetState() != QueueState.MapModeSelection)
         {
             return false;
         }
@@ -93,6 +107,23 @@ export abstract class QueueService {
     public static getQueueMemberIds(queueId: GuidValue): UserSnowflake[] {
         const queue = this.activeQueues.find(i => i.GetId() == queueId);
         return queue.GetMemberIds();
+    }
+
+    public static getQueueState(queueId: GuidValue): QueueState {
+        const queue = this.activeQueues.find(i => i.GetId() == queueId);
+        return queue.GetState();
+    }
+
+    public static setQueueState(queueId: GuidValue, newState: QueueState): void {
+        this.activeQueues.find(i => i.GetId() == queueId).SetState(newState);
+    }
+
+    public static setQueueMapSelectionMode(queueId: GuidValue, newMode: MapSelectionMode): void {
+        this.activeQueues.find(i => i.GetId() == queueId).SetMapSelectionMode(newMode);
+    }
+
+    public static incrementQueueState(queueId: GuidValue): void {
+        this.activeQueues.find(i => i.GetId() == queueId).IncrementState();
     }
 
     public static getQueueFromId(queueId: GuidValue): Queue {

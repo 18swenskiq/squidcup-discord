@@ -5,6 +5,8 @@ import { UserSnowflake } from "../types/userSnowflake";
 import { GuidValue } from "../types/guid";
 import { MessageEmbed } from "discord.js";
 import { StringUtils } from "../utilities/stringUtils";
+import { QueueMode } from "../types/queueMode";
+import { MapSelectionMode } from "../types/mapSelectionMode";
 
 export enum QueueState {
     Initializing,
@@ -26,6 +28,7 @@ export class Queue {
     private Channel: ChannelSnowflake;
     private QueueInteraction: any;
     private PlayersNeeded: number;
+    private MapSelectionMode: MapSelectionMode;
 
     constructor(interaction: any, id: GuidValue, queueType: string)
     {
@@ -37,13 +40,13 @@ export class Queue {
 
         switch(this.QueueType)
         {
-            case "1v1":
+            case QueueMode.Aim:
                 this.PlayersNeeded = 1;
                 break;
-            case "2v2":
+            case QueueMode.Wingman:
                 this.PlayersNeeded = 3;
                 break;
-            case "3v3":
+            case QueueMode.Thirdwheel:
                 this.PlayersNeeded = 5;
                 break;
             default:
@@ -106,6 +109,19 @@ export class Queue {
         return this.State;
     }
 
+    public SetState(newState: QueueState): void {
+        this.State = QueueState.MapSelection;
+    }
+
+    public SetMapSelectionMode(newMode: MapSelectionMode): void {
+        this.MapSelectionMode = newMode;
+        this.State++;
+    }
+
+    public IncrementState(): void {
+        this.State++;
+    }
+
     public GetInteraction(): any {
         return this.QueueInteraction;
     }
@@ -124,10 +140,5 @@ export class Queue {
 
     public GetMemberIds(): UserSnowflake[] {
         return this.Members;
-    }
-
-    public createMapModeSelectionChoiceDropdown = async(): Promise<void> => 
-    {
-        
     }
 }

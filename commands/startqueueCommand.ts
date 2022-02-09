@@ -7,6 +7,7 @@ import { Queue } from "../playqueue/queue";
 import { Guid } from "../types/guid";
 import { QueueService } from "../services/queueService";
 import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import { QueueMode } from '../types/queueMode';
 
 const configPath = path.resolve(__dirname, "../cfg/config.json");
 const { role1v1, role2v2, role3v3 } = require(configPath);
@@ -19,9 +20,9 @@ module.exports = {
             option.setName('gamesize')
                 .setDescription('The size of the game')
                 .setRequired(true)
-                .addChoice('1v1', '1v1')
-                .addChoice('2v2', '2v2')
-                .addChoice('3v3', '3v3')),
+                .addChoice(QueueMode.Aim, QueueMode.Aim)
+                .addChoice(QueueMode.Wingman, QueueMode.Wingman)
+                .addChoice(QueueMode.Thirdwheel, QueueMode.Thirdwheel)),
 	async execute(interaction) {
         await interaction.deferReply();
         const gameSize = interaction.options.getString('gamesize');
@@ -37,15 +38,15 @@ module.exports = {
         let mentionString: string;
         let playersNeeded: string;
         switch(gameSize) {
-            case "1v1":
+            case QueueMode.Aim:
                 mentionString = `<@&${role1v1}>`;
                 playersNeeded = '1';
                 break;
-            case "2v2":
+            case QueueMode.Wingman:
                 mentionString = `<@&${role2v2}>`;
                 playersNeeded = '3';
                 break;
-            case "3v3":
+            case QueueMode.Thirdwheel:
                 mentionString = `<@&${role3v3}>`;
                 playersNeeded = '5';
                 break;
