@@ -9,7 +9,7 @@ export abstract class JoinQueueButtonPress {
     {
         let queueId = StringUtils.GetQueueIdFromCustomId(interaction.customId);
 
-        if (!QueueService.queueIsJoinable(queueId))
+        if (!QueueService.doesQueueExist(queueId))
         {
             await interaction.editReply("The associated queue for that button does not exist!");
             return;
