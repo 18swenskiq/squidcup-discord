@@ -1,5 +1,6 @@
 import { Queue, QueueState } from "../playqueue/queue";
 import { QueueService } from "../services/queueService";
+import { MapSelectionMode } from "../types/mapSelectionMode";
 import { StringUtils } from "../utilities/stringUtils";
 
 export abstract class SelectMapSelectionModeChoice {
@@ -19,8 +20,21 @@ export abstract class SelectMapSelectionModeChoice {
 
         // Set the map selection mode if it was a valid time to do so
         QueueService.setQueueMapSelectionMode(queueId, interaction.values[0]);
-        QueueService.getQueueInteraction(queueId).editReply(`You selected, \`${interaction.values[0]}\`! Coninuing...`);
-        QueueService.getQueueInteraction(queueId).followUp(`Queue leader selected \`${interaction.values[0]}\`!`);
+        await QueueService.getQueueInteraction(queueId).editReply(`You selected, \`${interaction.values[0]}\`! Coninuing...`);
+        await QueueService.getQueueInteraction(queueId).followUp(`Queue leader selected \`${interaction.values[0]}\`!`);
+
+
+        switch (interaction.values[0]) {
+            case MapSelectionMode.SeasonPool:
+                await QueueService.getQueueInteraction(queueId).followUp("This queue mode is not yet implemented");
+                break;
+            case MapSelectionMode.AllPickRandomVeto:
+                await QueueService.SetupAllPickRandomVeto(queueId);
+                break;
+            default:
+                QueueService.getQueueInteraction(queueId).followUp("Something isn't right here...");
+                break;
+        }
         
     }
 }

@@ -3,6 +3,7 @@ import { Queue, QueueState } from "../playqueue/queue";
 import { ChannelSnowflake } from "../types/channelSnowflake";
 import { Guid, GuidValue } from "../types/guid";
 import { MapSelectionMode } from "../types/mapSelectionMode";
+import { QueueMode } from "../types/queueMode";
 import { UserSnowflake } from "../types/userSnowflake";
 
 export abstract class QueueService {
@@ -133,5 +134,32 @@ export abstract class QueueService {
     public static getQueueIdFromChannelId(channel: ChannelSnowflake): GuidValue {
         const queue = this.activeQueues.find(i => i.GetChannel() == channel);
         return queue.GetId();
+    }
+
+    // Queue-flow related code
+    public static async SetupAllPickRandomVeto(queueId: GuidValue): Promise<void> {
+        // TODO: Check timeout
+        const queue = this.activeQueues.find(i => i.GetId() == queueId);
+        const queueGamemode = queue.GetQueueType();
+
+        let workshopUrl: string = "";
+
+        switch (queueGamemode) {
+            case QueueMode.Aim:
+                workshopUrl = "dummy 1v1 url";
+                break;
+            case QueueMode.Wingman:
+                workshopUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=2747675401";
+                break;
+            case QueueMode.Thirdwheel:
+                workshopUrl = "dummy 3v3 url";
+                break;
+        }
+
+        await queue.GetInteraction().followUp(`Map List for ${queueGamemode} here: <${workshopUrl}>`);
+        await queue.GetInteraction().followUp("Use `/vote <mapname>` to vote for what map you want!");
+
+        // Next I need to build the /vote command, and make sure it checks the user is in a queue, the queue map selection mode is AllPickRandomVeto, and it is in the "MapSelection" phase
+
     }
 }
