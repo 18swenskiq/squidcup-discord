@@ -12,6 +12,11 @@ export class MapData {
         this.Description = description;
     }
 
+    public static GetMatchingMapNames(availableMaps: MapData[], userInput: string): MapData[]
+    {
+        return availableMaps.filter(map => map.GetWorkshopTitleLower().includes(userInput.toLowerCase()));
+    }
+
     public GetPublishedFileId(): string {
         return this.PublishedFileId;
     }
@@ -22,6 +27,10 @@ export class MapData {
 
     public GetWorkshopTitle(): string {
         return this.WorkshopTitle;
+    }
+
+    public GetWorkshopTitleLower(): string {
+        return this.WorkshopTitle.toLowerCase();
     }
 
     public GetDescription(): string {

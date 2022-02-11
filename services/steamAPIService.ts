@@ -81,7 +81,8 @@ export abstract class SteamApiService {
         mapObjects.forEach(element => {
             retList.push(new MapData(element["publishedfileid"], element["preview_url"], element["title"], element["description"]));
         });
-        return retList;
+        // Only return maps that we could get the info of
+        return retList.filter(map => map.GetWorkshopTitle() != undefined);
     }
 }
 

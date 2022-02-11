@@ -2,9 +2,11 @@ process.chdir(__dirname);
 import { Queue, QueueState } from "../playqueue/queue";
 import { ChannelSnowflake } from "../types/channelSnowflake";
 import { Guid, GuidValue } from "../types/guid";
+import { MapData } from "../types/mapData";
 import { MapSelectionMode } from "../types/mapSelectionMode";
 import { QueueMode } from "../types/queueMode";
 import { UserSnowflake } from "../types/userSnowflake";
+import { GamemodeInfoService } from "./gamemodeInfoService";
 
 export abstract class QueueService {
     private static maxNumberQueues: number = 2;
@@ -50,12 +52,16 @@ export abstract class QueueService {
         return false;
     }
 
-    public static playerIsInAQueue(user: UserSnowflake): boolean {
+    public static isPlayerIsInAQueue(user: UserSnowflake): boolean {
         if(this.activeQueues.find(i => i.isUserInQueue(user)))
         {
             return true;
         }
         return false;
+    }
+
+    public static getQueueFromUserSnowflake(user: UserSnowflake): GuidValue {
+        return this.activeQueues.find(i => i.isUserInQueue(user)).GetId();
     }
 
     public static doesQueueExist(queueId: GuidValue): boolean {
@@ -115,6 +121,11 @@ export abstract class QueueService {
         return queue.GetState();
     }
 
+    public static getMapSelectionMode(queueId: GuidValue): MapSelectionMode {
+        const queue = this.activeQueues.find(i => i.GetId() == queueId);
+        return queue.GetMapSelectionMode();
+    }
+
     public static setQueueState(queueId: GuidValue, newState: QueueState): void {
         this.activeQueues.find(i => i.GetId() == queueId).SetState(newState);
     }
@@ -136,30 +147,28 @@ export abstract class QueueService {
         return queue.GetId();
     }
 
+    public static hasUserMapVoted(queueId: GuidValue, userId: UserSnowflake): boolean {
+        const queue = this.activeQueues.find(i => i.GetId() == queueId);
+        return queue.UserHasVoted(userId);
+    }
+
     // Queue-flow related code
     public static async SetupAllPickRandomVeto(queueId: GuidValue): Promise<void> {
         // TODO: Check timeout
         const queue = this.activeQueues.find(i => i.GetId() == queueId);
         const queueGamemode = queue.GetQueueType();
 
-        let workshopUrl: string = "";
+        const collectionId = GamemodeInfoService.GetCollectionIdForQueueMode(<QueueMode>queueGamemode);
+        const workshopUrl = `https://steamcommunity.com/sharedfiles/filedetails/?id=${collectionId}`;
 
-        switch (queueGamemode) {
-            case QueueMode.Aim:
-                workshopUrl = "dummy 1v1 url";
-                break;
-            case QueueMode.Wingman:
-                workshopUrl = "https://steamcommunity.com/sharedfiles/filedetails/?id=2747675401";
-                break;
-            case QueueMode.Thirdwheel:
-                workshopUrl = "dummy 3v3 url";
-                break;
-        }
+        await queue.GetInteraction().followUp(`Map List for ${queueGamemode} here: <${workshopUrl}>\nUse \`/vote <mapname>\` to vote for which map you want!`);
 
-        await queue.GetInteraction().followUp(`Map List for ${queueGamemode} here: <${workshopUrl}>`);
-        await queue.GetInteraction().followUp("Use `/vote <mapname>` to vote for what map you want!");
+        // TODO: Create an embed that we save the interaction of, so that it can be edited
 
-        // Next I need to build the /vote command, and make sure it checks the user is in a queue, the queue map selection mode is AllPickRandomVeto, and it is in the "MapSelection" phase
+    }
 
+    public static AddUserVote(queueId: GuidValue, userId: UserSnowflake, mapVote: MapData): void {
+        const queue = this.activeQueues.find(i => i.GetId() == queueId);
+        queue.CreateNewMapVote(userId, mapVote.GetPublishedFileId());
     }
 }

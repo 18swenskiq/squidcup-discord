@@ -20,7 +20,7 @@ export abstract class SelectMapSelectionModeChoice {
 
         // Set the map selection mode if it was a valid time to do so
         QueueService.setQueueMapSelectionMode(queueId, interaction.values[0]);
-        await QueueService.getQueueInteraction(queueId).editReply(`You selected, \`${interaction.values[0]}\`! Coninuing...`);
+        await interaction.editReply(`You selected, \`${interaction.values[0]}\`! Coninuing...`);
         await QueueService.getQueueInteraction(queueId).followUp(`Queue leader selected \`${interaction.values[0]}\`!`);
 
 
@@ -35,6 +35,5 @@ export abstract class SelectMapSelectionModeChoice {
                 QueueService.getQueueInteraction(queueId).followUp("Something isn't right here...");
                 break;
         }
-        
     }
 }

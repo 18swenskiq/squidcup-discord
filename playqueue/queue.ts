@@ -29,6 +29,7 @@ export class Queue {
     private QueueInteraction: any;
     private PlayersNeeded: number;
     private MapSelectionMode: MapSelectionMode;
+    private MapVotes: Map<UserSnowflake, string>;
 
     constructor(interaction: any, id: GuidValue, queueType: string)
     {
@@ -58,6 +59,7 @@ export class Queue {
         this.Members = [this.Owner];
         this.State = QueueState.SearchingForPlayers;
         this.QueueInteraction = interaction;
+        this.MapVotes = new Map<UserSnowflake, string>();
         QueueService.createNewQueue(this);
     }
 
@@ -113,6 +115,10 @@ export class Queue {
         this.State = QueueState.MapSelection;
     }
 
+    public GetMapSelectionMode() : MapSelectionMode {
+        return this.MapSelectionMode;
+    }
+
     public SetMapSelectionMode(newMode: MapSelectionMode): void {
         this.MapSelectionMode = newMode;
         this.State++;
@@ -140,5 +146,17 @@ export class Queue {
 
     public GetMemberIds(): UserSnowflake[] {
         return this.Members;
+    }
+
+    public UserHasVoted(userId: UserSnowflake): boolean {
+        if(this.MapVotes.get(userId))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public CreateNewMapVote(userId: UserSnowflake, mapId: string): void {
+        this.MapVotes.set(userId, mapId);
     }
 }

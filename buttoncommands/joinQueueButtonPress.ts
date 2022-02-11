@@ -15,7 +15,7 @@ export abstract class JoinQueueButtonPress {
             return;
         }      
 
-        if (QueueService.playerIsInAQueue(interaction.user.id))
+        if (QueueService.isPlayerIsInAQueue(interaction.user.id))
         {
             await interaction.editReply("You are already in a queue!");
             return;
@@ -72,7 +72,8 @@ export abstract class JoinQueueButtonPress {
                                 value: MapSelectionMode.AllPickRandomVeto,
                             },
                         ]),
-                );		
+                );
+            // TODO: Save this interaction so it can be deleted
             await QueueService.getQueueInteraction(queueId).followUp({ content: '<Insert Queue Leader Name here>, please pick a map selection mode!', components: [mapSelectionRow], ephemeral: true});
         }
     }
