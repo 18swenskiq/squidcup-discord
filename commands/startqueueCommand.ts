@@ -6,7 +6,7 @@ process.chdir(__dirname);
 import { Queue } from "../playqueue/queue";
 import { Guid } from "../types/guid";
 import { QueueService } from "../services/queueService";
-import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
 import { QueueMode } from '../types/queueMode';
 
 const configPath = path.resolve(__dirname, "../cfg/config.json");

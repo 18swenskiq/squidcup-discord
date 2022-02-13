@@ -1,7 +1,6 @@
 export {};
 import fs from 'fs';
 import path from 'path';
-const { SlashCommandBuilder } = require('@discordjs/builders');
 const { REST } = require('@discordjs/rest');
 const { Routes } = require('discord-api-types/v9');
 const configPath = path.resolve(__dirname, "cfg/config.json");

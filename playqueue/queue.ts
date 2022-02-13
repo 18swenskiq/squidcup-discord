@@ -7,6 +7,7 @@ import { CommandInteraction, MessageEmbed } from "discord.js";
 import { StringUtils } from "../utilities/stringUtils";
 import { QueueMode } from "../types/queueMode";
 import { MapSelectionMode } from "../types/mapSelectionMode";
+import { DateUtils } from "../utilities/dateUtils";
 
 export enum QueueState {
     Initializing,
@@ -21,7 +22,7 @@ export enum QueueState {
 export class Queue {
     private Id: GuidValue;
     private Owner: UserSnowflake;
-    private StartTime: Date;
+    private StartTime: number;
     private QueueType: string;
     private Members: UserSnowflake[];
     private State: QueueState;
@@ -56,7 +57,7 @@ export class Queue {
                 break;
         }
 
-        this.StartTime = new Date();
+        this.StartTime = Date.now();
         this.Members = [this.Owner];
         this.State = QueueState.SearchingForPlayers;
         this.QueueInteraction = interaction;
@@ -114,7 +115,7 @@ export class Queue {
     }
 
     public SetState(newState: QueueState): void {
-        this.State = QueueState.MapSelection;
+        this.State = newState;
     }
 
     public GetMapSelectionMode() : MapSelectionMode {
@@ -175,5 +176,9 @@ export class Queue {
             return true;
         }
         return false;
+    }
+
+    public GetMinutesSinceStarted(): number {
+        return DateUtils.GetMinutesBetweenDates(this.StartTime, Date.now());
     }
 }

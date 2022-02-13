@@ -1,5 +1,5 @@
-import { CommandInteraction, MessageActionRow, MessageSelectMenu } from "discord.js";
-import { Queue, QueueState } from "../playqueue/queue";
+import { MessageActionRow, MessageSelectMenu } from "discord.js";
+import { QueueState } from "../playqueue/queue";
 import { GamemodeInfoService } from "../services/gamemodeInfoService";
 import { QueueService } from "../services/queueService";
 import { SteamApiService } from "../services/steamAPIService";

@@ -1,7 +1,7 @@
 process.chdir(__dirname);
 import { Queue, QueueState } from "../playqueue/queue";
 import { ChannelSnowflake } from "../types/channelSnowflake";
-import { Guid, GuidValue } from "../types/guid";
+import { GuidValue } from "../types/guid";
 import { MapData } from "../types/mapData";
 import { MapSelectionMode } from "../types/mapSelectionMode";
 import { QueueMode } from "../types/queueMode";

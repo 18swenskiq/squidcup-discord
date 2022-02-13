@@ -1,4 +1,3 @@
-import { GuildMember, SelectMenuInteraction, User } from "discord.js";
 import { GamemodeInfoService } from "../services/gamemodeInfoService";
 import { QueueService } from "../services/queueService";
 import { SteamApiService } from "../services/steamAPIService";

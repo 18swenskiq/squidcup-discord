@@ -20,9 +20,9 @@ console.log(`Loading ${eventFiles.length} events...`);
 for (const file of eventFiles) {
 	const event = require(`${eventsPath}/${file}`);
 	if (event.once) {
-		client.once(event.name, (...args) => event.execute(...args));
+		client.once(event.name, (...args: any) => event.execute(...args));
 	} else {
-		client.on(event.name, (...args) => event.execute(...args));
+		client.on(event.name, (...args: any) => event.execute(...args));
 	}
 }
 console.log("Done loading events");
