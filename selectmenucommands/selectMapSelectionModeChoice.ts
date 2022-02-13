@@ -1,10 +1,10 @@
-import { Queue, QueueState } from "../playqueue/queue";
+import { SelectMenuInteraction } from "discord.js";
 import { QueueService } from "../services/queueService";
 import { MapSelectionMode } from "../types/mapSelectionMode";
 import { StringUtils } from "../utilities/stringUtils";
 
 export abstract class SelectMapSelectionModeChoice {
-    public static OnPress = async(interaction: any): Promise<void> => {
+    public static OnPress = async(interaction: SelectMenuInteraction): Promise<void> => {
         let queueId = StringUtils.GetQueueIdFromCustomId(interaction.customId);
 
         if (!QueueService.doesQueueExist(queueId))
@@ -19,7 +19,7 @@ export abstract class SelectMapSelectionModeChoice {
         }
 
         // Set the map selection mode if it was a valid time to do so
-        QueueService.setQueueMapSelectionMode(queueId, interaction.values[0]);
+        QueueService.setQueueMapSelectionMode(queueId, <MapSelectionMode>interaction.values[0]);
         await interaction.editReply(`You selected, \`${interaction.values[0]}\`! Coninuing...`);
         await QueueService.getQueueInteraction(queueId).followUp(`Queue leader selected \`${interaction.values[0]}\`!`);
 

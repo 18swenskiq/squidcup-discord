@@ -1,11 +1,10 @@
 import { QueueService } from "../services/queueService";
 import { StringUtils } from "../utilities/stringUtils";
-import { MessageActionRow, MessageEmbed, MessageSelectMenu } from 'discord.js';
-import { QueueMode } from "../types/queueMode";
+import { ButtonInteraction, MessageActionRow, MessageEmbed, MessageSelectMenu } from 'discord.js';
 import { MapSelectionMode } from "../types/mapSelectionMode";
 
 export abstract class JoinQueueButtonPress {
-    public static OnPress = async(interaction: any): Promise<void> => 
+    public static OnPress = async(interaction: ButtonInteraction): Promise<void> => 
     {
         let queueId = StringUtils.GetQueueIdFromCustomId(interaction.customId);
 

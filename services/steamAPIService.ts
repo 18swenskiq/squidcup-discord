@@ -6,6 +6,11 @@ export abstract class SteamApiService {
 
     private static collectionMapsCacheList: CollectionMapsCache[] = [];
 
+    public static async GetMapInfoInCollection(itemId: string, collectionId: string): Promise<MapData> {
+        const maps = await this.GetMapsFromCollection(collectionId);
+        return maps.find(m => m.GetPublishedFileId() == itemId);
+    }
+
     public static async GetMapsFromCollection(collectionId: string): Promise<MapData[]>
     {
         let currentTime = Date.now();

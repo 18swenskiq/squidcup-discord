@@ -142,6 +142,19 @@ export abstract class QueueService {
         return this.activeQueues.find(i => i.GetId() == queueId);
     }
 
+    public static isUserVotePending(queueId: GuidValue, userId: UserSnowflake): boolean {
+        const queue = this.activeQueues.find(i => i.GetId() == queueId);
+        return queue.IsUserVotePending(userId);
+    }
+
+    public static RemoveUserVotePending(queueId: GuidValue, userId: UserSnowflake): void {
+        this.activeQueues.find(i => i.GetId() == queueId).RemoveUserVotePending(userId);
+    }
+
+    public static AddUserVotePending(queueId: GuidValue, userId: UserSnowflake): void {
+        this.activeQueues.find(i => i.GetId() == queueId).AddUserVotePending(userId);
+    }
+
     public static getQueueIdFromChannelId(channel: ChannelSnowflake): GuidValue {
         const queue = this.activeQueues.find(i => i.GetChannel() == channel);
         return queue.GetId();
@@ -152,7 +165,8 @@ export abstract class QueueService {
         return queue.UserHasVoted(userId);
     }
 
-    // Queue-flow related code
+    // ------------Queue-flow related code------------
+    
     public static async SetupAllPickRandomVeto(queueId: GuidValue): Promise<void> {
         // TODO: Check timeout
         const queue = this.activeQueues.find(i => i.GetId() == queueId);

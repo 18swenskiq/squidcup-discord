@@ -3,7 +3,7 @@ import { QueueService } from "../services/queueService";
 import { ChannelSnowflake } from "../types/channelSnowflake";
 import { UserSnowflake } from "../types/userSnowflake";
 import { GuidValue } from "../types/guid";
-import { MessageEmbed } from "discord.js";
+import { CommandInteraction, MessageEmbed } from "discord.js";
 import { StringUtils } from "../utilities/stringUtils";
 import { QueueMode } from "../types/queueMode";
 import { MapSelectionMode } from "../types/mapSelectionMode";
@@ -26,12 +26,13 @@ export class Queue {
     private Members: UserSnowflake[];
     private State: QueueState;
     private Channel: ChannelSnowflake;
-    private QueueInteraction: any;
+    private QueueInteraction: CommandInteraction;
     private PlayersNeeded: number;
     private MapSelectionMode: MapSelectionMode;
     private MapVotes: Map<UserSnowflake, string>;
+    private VotesPending: UserSnowflake[];
 
-    constructor(interaction: any, id: GuidValue, queueType: string)
+    constructor(interaction: CommandInteraction, id: GuidValue, queueType: string)
     {
         this.State = QueueState.Initializing;
         this.Id = id;
@@ -60,6 +61,7 @@ export class Queue {
         this.State = QueueState.SearchingForPlayers;
         this.QueueInteraction = interaction;
         this.MapVotes = new Map<UserSnowflake, string>();
+        this.VotesPending = [];
         QueueService.createNewQueue(this);
     }
 
@@ -158,5 +160,20 @@ export class Queue {
 
     public CreateNewMapVote(userId: UserSnowflake, mapId: string): void {
         this.MapVotes.set(userId, mapId);
+    }
+
+    public AddUserVotePending(userId: UserSnowflake): void {
+        this.VotesPending.push(userId);
+    }
+
+    public RemoveUserVotePending(userId: UserSnowflake): void {
+        this.VotesPending.filter(i => i != userId);
+    }
+
+    public IsUserVotePending(userId: UserSnowflake): boolean {
+        if(this.VotesPending.find(i => i == userId)) {
+            return true;
+        }
+        return false;
     }
 }

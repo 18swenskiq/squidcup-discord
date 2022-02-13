@@ -9,7 +9,7 @@ export class MapData {
         this.PublishedFileId = publishedFileId;
         this.WorkshopThumbnailUrl = workshopThumbnailUrl;
         this.WorkshopTitle = workshopTitle;
-        this.Description = description;
+        this.Description = description == "" ? description.substring(0, 100) : "";
     }
 
     public static GetMatchingMapNames(availableMaps: MapData[], userInput: string): MapData[]
@@ -34,6 +34,7 @@ export class MapData {
     }
 
     public GetDescription(): string {
+        // TODO: Create a function to clean up the description (BB Tags, special characters, etc)
         return this.Description;
     }
 }

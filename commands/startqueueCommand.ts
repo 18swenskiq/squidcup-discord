@@ -6,7 +6,7 @@ process.chdir(__dirname);
 import { Queue } from "../playqueue/queue";
 import { Guid } from "../types/guid";
 import { QueueService } from "../services/queueService";
-import { MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
+import { CommandInteraction, MessageActionRow, MessageButton, MessageEmbed } from 'discord.js';
 import { QueueMode } from '../types/queueMode';
 
 const configPath = path.resolve(__dirname, "../cfg/config.json");
@@ -86,6 +86,6 @@ module.exports = {
             .setTimestamp();
 
         await interaction.editReply({content: `${gameSize} Queue Started!`, components: [buttons], embeds: [initialEmbed]});
-        await interaction.followUp(`${mentionString}, ${interaction.member.displayName} is looking for ${playersNeeded} more ${parseInt(playersNeeded) > 1 ? 'players' : 'player'} for a ${gameSize} match! Press the \`Join Queue\` button above to join!`);        
+        await interaction.followUp(`${mentionString}, ${interaction.member.displayName} is looking for ${playersNeeded} more ${parseInt(playersNeeded) > 1 ? 'players' : 'player'} for a ${gameSize} match!`);        
 	},
 };

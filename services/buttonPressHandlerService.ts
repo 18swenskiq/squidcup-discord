@@ -1,8 +1,9 @@
+import { ButtonInteraction } from "discord.js";
 import { JoinQueueButtonPress } from "../buttoncommands/joinQueueButtonPress";
 import { StringUtils } from "../utilities/stringUtils";
 
 export abstract class ButtonPressHandlerService {
-    public static HandleInteraction = async(interaction: any): Promise<void> => {
+    public static HandleInteraction = async(interaction: ButtonInteraction): Promise<void> => {
         switch(StringUtils.GetCustomIdChoiceArchetype(interaction.customId))
         {
             case 'joinqueue':

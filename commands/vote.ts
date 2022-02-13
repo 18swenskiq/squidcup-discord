@@ -1,3 +1,4 @@
+import { CommandInteraction, MessageActionRow, MessageSelectMenu } from "discord.js";
 import { Queue, QueueState } from "../playqueue/queue";
 import { GamemodeInfoService } from "../services/gamemodeInfoService";
 import { QueueService } from "../services/queueService";
@@ -42,9 +43,13 @@ module.exports = {
             // Check if user has already voted
             if(QueueService.hasUserMapVoted(queueId, interaction.user.id))
             {
-                // May want to consider modifying this to allow changing your vote
                 await interaction.editReply(`You have already voted for a map!`);
                 return;
+            }
+
+            // Check if we are already waiting on their vote
+            if(QueueService.isUserVotePending(queueId, interaction.user.id)) {
+                await interaction.editReply(`Please select an item in the dropdown`);
             }
 
             // If all of these cases pass, then we can test the input
@@ -62,13 +67,40 @@ module.exports = {
             else if (matchingMaps.length == 1)
             {
                 QueueService.AddUserVote(queueId, interaction.user.id, matchingMaps[0]);
-                await interaction.editReply(`${interaction.member.displayName} voted for ${matchingMaps[0].GetWorkshopTitle()}`);
+                await interaction.editReply(`${interaction.member.displayName} voted for **${matchingMaps[0].GetWorkshopTitle()}**`);
                 return;
             }
-            // Situation: Multiple maps matched. We are going to have to force the user to pick one
-            else
+            // Situation: There are more than 5 matches. That's too many matches, they need to be more specific
+            else if (matchingMaps.length > 5)
             {
-                await interaction.editReply("Sorry, not implemented");
+                await interaction.deleteReply();
+                await interaction.followUp({ content: `Too many results matched your vote. Please be more specific!`, ephemeral: true});
+                return;
+            }
+            // Situation: Between 2-4 matches detected. We are going to have to give the user a dropdown for them to pick from
+            else
+            { 
+                QueueService.AddUserVotePending(queueId, interaction.user.id);
+
+                const mapChoices =  matchingMaps.map(function(m) {
+                    let info = {"label": m.GetWorkshopTitle(),
+                                "description": m.GetDescription(),
+                                "value": m.GetPublishedFileId()}
+                    return info;
+                });
+                mapChoices.push({"label": "None of these", "description": "/vote for a completely new map", "value": "quit"});
+
+                // Create the dropdown option for the queue leader to choose the map selection mode
+                const mapSelectionRow = new MessageActionRow()
+                .addComponents(
+                    new MessageSelectMenu()
+                        .setCustomId(`specifymapvote_${queueId}`)
+                        .setPlaceholder('Select a Map')
+                        .addOptions(mapChoices)
+                );
+
+                await interaction.deleteReply();
+                await interaction.followUp({ content: 'Please specify your vote in this dropdown', components: [mapSelectionRow], ephemeral: true})
                 return;
             }
         }
